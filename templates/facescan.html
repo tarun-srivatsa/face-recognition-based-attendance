@@ -4,8 +4,8 @@
 {% block body %}
     <script src={% static 'assets/js/capture.js' %}?{% now "u"="" %}></script>
     <div class="container-fluid">
-        {% if noface %}
-            <h3>No face detected, scan again..</h3>
+        {% if message %}
+            <h3>{{ message }}</h3>
         {% endif %}
         <div class="row">
             <form method="POST" enctype="multipart/form-data">
@@ -30,4 +30,6 @@
             document.getElementById("sub").disabled=false;
         }
     </script>
+
+    <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
 {% endblock %}

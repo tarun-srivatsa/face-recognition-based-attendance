@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from django.db import models
 
 dept_list=(
@@ -41,8 +41,9 @@ class Class(models.Model):
 
 class CurrentSession(models.Model):
     classdetails=models.ForeignKey(Class,on_delete=models.CASCADE)
-    date=models.DateField(default=datetime.today)
+    date=models.DateField(default=date.today)
     countage=models.PositiveSmallIntegerField(default=1)
+    # is_active=models.BooleanField(default=False,null=True)
 
     class Meta:
         unique_together=(('classdetails','date'),)
