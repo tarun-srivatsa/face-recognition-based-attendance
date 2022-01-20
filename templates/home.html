@@ -1,31 +1,8 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block body %}
-    <script src="static/assets/js/capture.js?{% now "u"="" %}"></script>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-8">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="form-group">                                
-                        <video id="video" autoplay></video>                               
-                        <canvas id="canvas" hidden></canvas>
-                    </div>
-                    <button id="capt" class="btn btn-secondary btn-sm" onclick="enablesubmit()">Take Photo</button>
-                    <button id="sub" type="submit" class="btn btn-success btn-sm">POST</button>
-                    <div class="img pull-center" >                                            
-                        <img id ="photo" name="photo" alt="The screen capture will appear in this box.">
-                    </div>
-                    <input id="imgtxt" name="src" value="" hidden></hidden>
-                </form>
-            </div>  
-        </div>
-    </div>
-
-    <script>
-        document.getElementById("sub").disabled=true;
-        function enablesubmit() {
-            document.getElementById("sub").disabled=false;
-        }
-    </script>
+    <h3>Welcome</h3>
+    <a href="{% url 'facescan' %}" class="btn btn-primary">Resister New Student</a>
+    <a href="{% url 'createsession' %}" class="btn btn-primary">Create Session</a>
 {% endblock %}
