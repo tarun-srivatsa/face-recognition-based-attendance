@@ -6,20 +6,29 @@
     {% if message %}
         <h3>{{ message }}</h3>
     {% endif %}
-    {% if path %}
-    <h2>Your Face</h2>
-    <img src="{% static path %}" /><br><br>
+    {% if session %}
+        <h3>Session: {{ session.classdetails }}</h3>
+        <h3>Date: {{ session.date }}</h3>
     {% endif %}
+    {% if path %}<img src="{% static path %}" /><br><br>{% endif %}
     {% if regform %}
+        {% if similar_face %}
+            <h4>Face similar to: {{ similar_face.name }}</h4>
+            <h5>If already registered, <a href="/" class="btn btn-warning">skip</a></h5>
+            {% comment %} <a></a> {% endcomment %}
+            <h5>If not, Proceed to fill the form</h5>
+        {% endif %}
         <form method="post" class="form-group">
             {% csrf_token %}
             {{ regform|crispy }}
             <button type="submit" class="btn btn-success">Submit</button>
         </form>
     {% endif %}
-    {% if predicted %}
-        <h4>You are: {{ predicted }}?</h4>
-        <a href="{% url 'facescan' %}?studentpresent={{usn}}">YES</a>
-        <a href="{% url 'attendancescan' %}">NO. Rescan</a>
+    {% if student %}
+        <h4>You are: {{ student.name }} ({{ student.usn }})?</h4>
+        <a href="{% url 'attendancescan' %}?yesstudent={{student.usn}}" class="btn btn-outline-primary">YES</a>
+        <a href="{% url 'attendancescan' %}?nostudent={{student.usn}}" class="btn btn-outline-danger">NO</a>
+        <li>Pressing Yes will mark your attendance</li>
+        <li>Pressing No will allow you to rescan your face</li>
     {% endif %}
 {% endblock %}

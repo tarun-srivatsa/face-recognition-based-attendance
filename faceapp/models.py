@@ -16,7 +16,7 @@ class Section(models.Model):
         unique_together=(('dept_code','batch'),)
 
     def __str__(self):
-        return f"{self.dept_code} - {self.batch}"
+        return f"{self.dept_code}-{self.batch}"
 
 class Student(models.Model):
     usn=models.CharField(max_length=10,primary_key=True)

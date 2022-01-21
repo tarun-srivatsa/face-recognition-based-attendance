@@ -4,8 +4,14 @@
 {% block body %}
     <script src={% static 'assets/js/capture.js' %}?{% now "u"="" %}></script>
     <div class="container-fluid">
+        {% if session %}
+            <h3>Session: {{ session.classdetails }}</h3>
+            <h3>Date: {{ session.date }}</h3>
+        {% else %}
+            <h3>Student Registration</h3>
+        {% endif %}
         {% if message %}
-            <h3>{{ message }}</h3>
+            <h5>{{ message }}</h5>
         {% endif %}
         <div class="row">
             <form method="POST" enctype="multipart/form-data">
