@@ -3,7 +3,7 @@
 
 {% block body %}
     <h3>Welcome</h3>
-    <a href="{% url 'facescan' %}" class="btn btn-primary">Register New Student</a>
+    <a href="{% url 'registerscan' %}" class="btn btn-primary">Register New Student</a>
     <a href="{% url 'createsession' %}" class="btn btn-primary">Create Session</a>
-    {% comment %} <a href="{% url 'activesessions' %}" class="btn btn-primary">Active Sessions</a> {% endcomment %}
+    <a href="{% url 'activesessions' %}" class="btn btn-primary">Active Sessions</a>
 {% endblock %}
