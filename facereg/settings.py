@@ -28,10 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
-    '3a14-2401-4900-61a4-5247-8688-c245-81da-660f.ngrok.io'
+    '4c51-2401-4900-6194-534c-2b6d-f06b-ac32-ee3d.ngrok.io'
 ]
 CSRF_TRUSTED_ORIGINS = [
-    'https://3a14-2401-4900-61a4-5247-8688-c245-81da-660f.ngrok.io'
+    'https://4c51-2401-4900-6194-534c-2b6d-f06b-ac32-ee3d.ngrok.io'
 ]
 
 
@@ -114,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block body %}
+    <div class="container">
+        <h3>Session: {{ session.classdetails }}</h3>
+        <h3>Date: {{ session.date }}</h3>
+        <br>
+        <a href={% url 'attendancescan' %} class="btn btn-success">Scan Students</a>
+        <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
+        <a href="" class="btn btn-danger">Close Session</a>
+        <br><br>
+        <table class="table table-bordered table-hover" style="font-size:16px; text-align:center;">
+            <tr class="table-dark" style="text-align:center; font-weight:bolder;">
+                <td>USN</td>
+                <td>Student Name</td>
+                <td>Present/Absent</td>
+            </tr>
+            {% for p in p_list %}
+            <tr class="table-success">
+                <td>{{p.usn}}</td>
+                <td>{{p.name}}</td>
+                <td>P</td>
+            </tr>
+            {% endfor %}
+            <tr class="table-warning" style="max-height:5px;">
+                <td><b>Not Yet Present</b></td>
+                {% comment %} <td>----</td>
+                <td>----</td> {% endcomment %}
+            </tr>
+            {% for a in a_list %}
+            <tr class="table-danger">
+                <td>{{a.usn}}</td>
+                <td>{{a.name}}</td>
+                <td>A</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

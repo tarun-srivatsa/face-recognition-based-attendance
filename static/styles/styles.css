@@ -2,6 +2,10 @@ input {
   max-width: 17em
 }
 
+select{
+    max-width:17em
+}
+
 .cols-counselor {
     grid-template-columns: 5fr 18fr 18fr 8fr 10fr 8fr 10fr 6fr;
 }

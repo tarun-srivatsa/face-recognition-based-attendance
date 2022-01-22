@@ -15,7 +15,6 @@
         {% if similar_face %}
             <h4>Face similar to: {{ similar_face.name }}</h4>
             <h5>If already registered, <a href="/" class="btn btn-warning">skip</a></h5>
-            {% comment %} <a></a> {% endcomment %}
             <h5>If not, Proceed to fill the form</h5>
         {% endif %}
         <form method="post" class="form-group">
@@ -25,10 +24,23 @@
         </form>
     {% endif %}
     {% if student %}
-        <h4>You are: {{ student.name }} ({{ student.usn }})?</h4>
-        <a href="{% url 'attendancescan' %}?yesstudent={{student.usn}}" class="btn btn-outline-primary">YES</a>
-        <a href="{% url 'attendancescan' %}?nostudent={{student.usn}}" class="btn btn-outline-danger">NO</a>
+        <h5>You are: {{ student.name }} ({{ student.usn }})?
+        {% if already_present %} [Already Marked Present]{% endif %}
+        </h5>
+        <h5>{% if not_this_done %}{{ not_this_done }}{% endif %}</h5>
+
+        <button class="btn btn-outline-primary" {% if already_present %}disabled{% endif %}> 
+            <a href="{% url 'attendancescan' %}?yesstudent={{student.usn}}" class="btn btn-sm">YES</a>
+        </button>
+
+        <button class="btn btn-outline-danger" {% if not_this_done %}disabled{% endif %}> 
+            <a href="{% url 'attendancescan' %}?nostudent={{student.usn}}" class="btn btn-sm">NO</a>
+        </button>
+        
         <li>Pressing Yes will mark your attendance</li>
         <li>Pressing No will allow you to rescan your face</li>
     {% endif %}
+    <br>
+    <a href="{% url 'attendancescan' %}" class="btn btn-primary">Continue Scanning</a>
+    <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
 {% endblock %}

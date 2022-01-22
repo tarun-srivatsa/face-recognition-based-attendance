@@ -49,9 +49,17 @@ class CurrentSession(models.Model):
         unique_together=(('classdetails','date'),)
 
     def __str__(self):
-        return f"{self.classdetails.faculty}-{self.date}"
+        return f"{self.classdetails.faculty} - {self.date}"
 
 class Present(models.Model):
     session=models.ForeignKey(CurrentSession,on_delete=models.CASCADE)
     student=models.ForeignKey(Student,on_delete=models.CASCADE)
+    # usn=models.CharField()
     timestamp=models.DateTimeField(auto_now_add=True,null=True)
+
+    class Meta:
+        unique_together=(('session','student'),)
+        # unique_together=(('session','usn'),)
+
+    def __str__(self):
+        return f"{self.session.id}-{self.student.usn}"
