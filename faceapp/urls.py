@@ -7,5 +7,5 @@ urlpatterns = [
     path('studentreg/',views.student_register,name='studentregister'),
     path('create-session/',views.create_session,name='createsession'),
     path('attendance-scan/',views.attendance_scan,name='attendancescan'),
-    path('active-sessions/',views.active_sessions,name='activesessions'),
+    path('active-session/',views.active_session,name='activesession'),
 ]

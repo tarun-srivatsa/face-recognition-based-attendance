@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-    <script src={% static 'assets/js/capture.js' %}?{% now "u"="" %}></script>
+    <script src={% static 'assets/js/capture.js' %}></script>
     <div class="container-fluid">
         {% if session %}
             <h3>Session: {{ session.classdetails }}</h3>
@@ -36,6 +36,6 @@
             document.getElementById("sub").disabled=false;
         }
     </script>
-
+    <br>
     <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
 {% endblock %}

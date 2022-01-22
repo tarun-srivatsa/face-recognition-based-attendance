@@ -8,6 +8,7 @@
     <form method="post" class="form-group">
         {% csrf_token %}
         {{ form|crispy }}
+        <br>
         <button type="submit" class="btn btn-primary">Start Scanning for Session</button>
     </form>
 {% endblock %}

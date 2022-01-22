@@ -26,19 +26,17 @@ def fetch_encodings(section):
 
 # im=cv2.resize(img,(0,0),None,0.25,0.25)
 # if matches[matchIndex]:
-#     name='TARUN'
-#     print(name)
 #     y1,x2,y2,x1=faceloc
 #     y1,x2,y2,x1=y1*4,x2*4,y2*4,x1*4
-#     cv2.rectangle(img,(x1,y1),(x2,y2),(200,0,200),3)
-#     cv2.rectangle(img,(x1,y2-35),(x2,y2),(200,0,200),cv2.FILLED)
-#     cv2.putText(img,name,(x1+6,y2-6),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
-# def cleanup():
-#     for file in os.walk('static'):
-#         print(file)
 
 def homeview(request):
-    return render(request,'home.html')
+    if request.method=='POST':
+        session_id=request.POST.get('session','')
+        request.session['session_id']=session_id
+        return HttpResponseRedirect(reverse('activesession'))
+
+    session_list=CurrentSession.objects.all()
+    return render(request,'home.html',{'sessions':session_list})
 
 def register_scan(request):
     if request.method=='POST':
@@ -71,7 +69,7 @@ def student_register(request):
             return HttpResponseRedirect(reverse('home'))
     else:
         form=StudentForm()
-        similar_face=face_recognise(np.array(enc),None,None)
+        similar_face=face_recognise(np.array(enc),None)
         if similar_face:
             context['similar_face']=Student.objects.get(usn=similar_face)
     context['regform']=form
@@ -94,24 +92,35 @@ def create_session(request):
 
 def attendance_scan(request):
     if request.GET.get('yesstudent',''):
-        pass
+        stud=request.GET.get('yesstudent','')
+        stud=Student.objects.get(usn=request.GET.get('yesstudent',''))
+        session=CurrentSession.objects.get(id=request.session['session_id'])
+        pobj=Present(student=stud,session=session)
+        pobj.save()
+        return HttpResponseRedirect(reverse('attendancescan'))
+
     if request.GET.get('nostudent',''):
         return attendance_assist(request,request.GET.get('nostudent',''))
 
     return attendance_assist(request,None)
 
 def attendance_assist(request,not_this):
-    session_id=request.session['session_id']
-    session=CurrentSession.objects.get(id=session_id)
+    session=CurrentSession.objects.get(id=request.session['session_id'])
     section=session.classdetails.section
     context={'session':session}
     if request.method=='POST':
         is1face,boxpath,enc=face_scan(request)
         if is1face:
-            usn=face_recognise(enc,section,not_this)
+            usn=face_recognise(enc,section)
+            if not_this:
+                context['not_this_done']=True
+                if usn==not_this:
+                    context['not_this_done']='This is you as per the database'
             if not usn:
                 context['message']='Unknown Face. Please Scan Again'
                 return render(request,'facescan.html',context)
+            if already_present(usn,session):
+                context['already_present']=True
             student=Student.objects.get(usn=usn)
             context.update(student=student,path=boxpath)
             return render(request,'box.html',context)
@@ -121,14 +130,12 @@ def attendance_assist(request,not_this):
 
     return render(request,'facescan.html',context)
 
-def face_recognise(enc,section,not_this):
+def face_recognise(enc,section):
     usnlist,enclist=fetch_encodings(section)
     facedistances=face_recognition.face_distance(enclist,enc)
-    print(usnlist,facedistances)
     matchindex=np.argmin(facedistances)
-
     if not section:
-        if facedistances[matchindex]<0.3:
+        if facedistances[matchindex]<0.35:
             return usnlist[matchindex]
         else:
             return None
@@ -136,11 +143,14 @@ def face_recognise(enc,section,not_this):
     if facedistances[matchindex]>0.5:
         return None
 
-    if not_this and usnlist[matchindex]==not_this:
-        del enclist[matchindex]
-        del usnlist[matchindex]
-        matchindex=np.argmin(facedistances)
-
+    # if not_this and usnlist[matchindex]==not_this:
+    #     # del facedistances[matchindex]
+    #     np.delete(facedistances,matchindex)
+    #     del usnlist[matchindex]
+    #     matchindex=np.argmin(facedistances)
+    #     if not matchindex:
+    #         return None
+    print(usnlist,facedistances)
     return usnlist[matchindex]
 
 def putbox(name,path):
@@ -159,7 +169,7 @@ def putbox(name,path):
     return True,boxpath,encloc
 
 def face_scan(request):
-    datauri = request.POST["src"]
+    datauri = request.POST.get('src','')
     name=datetime.now().strftime('%H-%M')
     path='media/temps/'+name+'.jpg'
     image=open(path,'wb')
@@ -169,11 +179,30 @@ def face_scan(request):
     os.remove(path)
     return r1,r2,r3
 
-def active_sessions(request):
-    if request.method=='POST':
-        session_id=request.POST.get('session','')
-        request.session['session_id']=session_id
-        return HttpResponseRedirect(reverse('attendancescan'))
+def already_present(usn,session):
+    stud=Student.objects.get(usn=usn)
+    if Present.objects.filter(student=stud,session=session).exists():
+        return True
+    else:
+        return False
 
-    session_list=CurrentSession.objects.all()
-    return render(request,'active_sessions.html',{'sessions':session_list})
+def active_session(request):
+    session=CurrentSession.objects.get(id=request.session['session_id'])  
+    p_list,a_list=get_present_absent(session)
+    p_list=[Student.objects.get(usn=p) for p in p_list]
+    a_list=[Student.objects.get(usn=a) for a in a_list]
+    context={'session':session,'p_list':p_list,'a_list':a_list}
+    return render(request,'active_session.html',context)
+
+def get_present_absent(session):
+    presents=Present.objects.filter(session=session).order_by('student')
+    p_list=[]
+    for p in presents:
+        p_list.append(p.student.usn)
+    a_list=[]
+    full_list=Student.objects.filter(section=session.classdetails.section).order_by('usn').values_list('usn',flat=True)
+    for s in full_list:
+        if s not in p_list:
+            a_list.append(s)
+
+    return p_list,a_list
