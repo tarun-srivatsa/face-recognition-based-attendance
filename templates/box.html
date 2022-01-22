@@ -3,12 +3,16 @@
 {% load crispy_forms_filters %}
 
 {% block body %}
+<title>{% if regform %}Registration{% else %}Verify Attendance{% endif %}</title>
+</head>
+<body>
+    {% if regform %}<h2>Student Registration</h2>{% endif %}
     {% if message %}
         <h3>{{ message }}</h3>
     {% endif %}
     {% if session %}
-        <h3>Session: {{ session.classdetails }}</h3>
-        <h3>Date: {{ session.date }}</h3>
+        <h4>Session: {{ session.classdetails }}</h4>
+        <h4>Date: {{ session.date }}</h4>
     {% endif %}
     {% if path %}<img src="{% static path %}" /><br><br>{% endif %}
     {% if regform %}
@@ -43,4 +47,5 @@
     <br>
     <a href="{% url 'attendancescan' %}" class="btn btn-primary">Continue Scanning</a>
     <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
+</body>
 {% endblock %}

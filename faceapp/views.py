@@ -9,7 +9,7 @@ import numpy as np
 import os
 import face_recognition
 from datetime import datetime,date
-from .models import Class, CurrentSession, Present, Section, Student
+from .models import CurrentSession, Present, Section, Student
 from .forms import NewSessionForm, StudentForm
 
 norm = np.zeros((500,500))
@@ -24,19 +24,23 @@ def fetch_encodings(section):
     encs=[np.array(json.loads(x)) for x in json_encs]
     return usns,encs
 
-# im=cv2.resize(img,(0,0),None,0.25,0.25)
-# if matches[matchIndex]:
-#     y1,x2,y2,x1=faceloc
-#     y1,x2,y2,x1=y1*4,x2*4,y2*4,x1*4
-
 def homeview(request):
-    if request.method=='POST':
-        session_id=request.POST.get('session','')
-        request.session['session_id']=session_id
+    if request.GET.get('close',''):
+        session=CurrentSession.objects.get(id=request.GET.get('close',''))
+        session.is_active=False
+        session.save()
+        return HttpResponseRedirect(reverse('home'))
+        
+    if request.POST.get('active',''):
+        request.session['session_id']=request.POST.get('active','')
         return HttpResponseRedirect(reverse('activesession'))
 
-    session_list=CurrentSession.objects.all()
-    return render(request,'home.html',{'sessions':session_list})
+    if request.POST.get('closed',''):
+        pass
+
+    open_sessions=CurrentSession.objects.filter(is_active=True)
+    closed_sessions=CurrentSession.objects.filter(is_active=False)
+    return render(request,'home.html',{'open_sessions':open_sessions,'closed_sessions':closed_sessions})
 
 def register_scan(request):
     if request.method=='POST':
@@ -132,6 +136,8 @@ def attendance_assist(request,not_this):
 
 def face_recognise(enc,section):
     usnlist,enclist=fetch_encodings(section)
+    if not enclist:
+        return None
     facedistances=face_recognition.face_distance(enclist,enc)
     matchindex=np.argmin(facedistances)
     if not section:
@@ -143,13 +149,6 @@ def face_recognise(enc,section):
     if facedistances[matchindex]>0.5:
         return None
 
-    # if not_this and usnlist[matchindex]==not_this:
-    #     # del facedistances[matchindex]
-    #     np.delete(facedistances,matchindex)
-    #     del usnlist[matchindex]
-    #     matchindex=np.argmin(facedistances)
-    #     if not matchindex:
-    #         return None
     print(usnlist,facedistances)
     return usnlist[matchindex]
 
@@ -187,15 +186,13 @@ def already_present(usn,session):
         return False
 
 def active_session(request):
-    session=CurrentSession.objects.get(id=request.session['session_id'])  
-    p_list,a_list=get_present_absent(session)
-    p_list=[Student.objects.get(usn=p) for p in p_list]
-    a_list=[Student.objects.get(usn=a) for a in a_list]
-    context={'session':session,'p_list':p_list,'a_list':a_list}
+    session=CurrentSession.objects.get(id=request.session['session_id'])
+    presents=Present.objects.filter(session=session).order_by('student')
+    a_list=[Student.objects.get(usn=a) for a in get_absent(session,presents)]
+    context={'session':session,'presents':presents,'a_list':a_list}
     return render(request,'active_session.html',context)
 
-def get_present_absent(session):
-    presents=Present.objects.filter(session=session).order_by('student')
+def get_absent(session,presents):
     p_list=[]
     for p in presents:
         p_list.append(p.student.usn)
@@ -205,4 +202,4 @@ def get_present_absent(session):
         if s not in p_list:
             a_list.append(s)
 
-    return p_list,a_list
+    return a_list

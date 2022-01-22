@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import ModelForm
+from django.forms import ModelForm, NumberInput, TextInput
 from django.core.validators import RegexValidator
 from .models import Class, CurrentSession, Section, Student
 
@@ -19,21 +19,19 @@ class StudentForm(ModelForm):
         widget=forms.Select(attrs={'style': 'max-width:17em'})
     )
 
-    # photo=forms.ImageField()
-
     class Meta():
         model=Student
         fields=['name','usn','section']
 
 class NewSessionForm(ModelForm):
     class_details=forms.ModelChoiceField(
-        queryset=Class.objects.all(),
-        widget=forms.Select(attrs={'style': 'max-width:17em'})
+        queryset=Class.objects.all().order_by('course_code'),
     )
 
     attendance_countage=forms.IntegerField(
         min_value=1,
-        max_value=5
+        max_value=5,
+        widget=forms.NumberInput(attrs={'value':1})
     )
 
     class Meta():

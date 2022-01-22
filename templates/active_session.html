@@ -2,25 +2,29 @@
 {% load crispy_forms_filters %}
 
 {% block body %}
+<title>Active Session</title>
+</head>
+<body>
     <div class="container">
-        <h3>Session: {{ session.classdetails }}</h3>
-        <h3>Date: {{ session.date }}</h3>
+        <h4>Session: {{ session.classdetails }}</h4>
+        <h4>Date: {{ session.date }}</h4>
         <br>
         <a href={% url 'attendancescan' %} class="btn btn-success">Scan Students</a>
         <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
-        <a href="" class="btn btn-danger">Close Session</a>
+        <a href="{% url 'home' %}?close={{session.id}}" class="btn btn-danger">Close Session</a>
         <br><br>
+        <h3>Session Status</h3>
         <table class="table table-bordered table-hover" style="font-size:16px; text-align:center;">
             <tr class="table-dark" style="text-align:center; font-weight:bolder;">
                 <td>USN</td>
                 <td>Student Name</td>
-                <td>Present/Absent</td>
+                <td>Entry Time</td>
             </tr>
-            {% for p in p_list %}
+            {% for p in presents %}
             <tr class="table-success">
-                <td>{{p.usn}}</td>
-                <td>{{p.name}}</td>
-                <td>P</td>
+                <td>{{ p.student.usn }}</td>
+                <td>{{ p.student.name }}</td>
+                <td>{{ p.timestamp }}</td>
             </tr>
             {% endfor %}
             <tr class="table-warning" style="max-height:5px;">
@@ -32,9 +36,10 @@
             <tr class="table-danger">
                 <td>{{a.usn}}</td>
                 <td>{{a.name}}</td>
-                <td>A</td>
+                <td>AB</td>
             </tr>
             {% endfor %}
         </table>
     </div>
+</body>
 {% endblock %}

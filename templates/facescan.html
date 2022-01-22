@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block body %}
+<title>FACE SCANNING..</title>
+</head>
+<body>
     <script src={% static 'assets/js/capture.js' %}></script>
     <div class="container-fluid">
         {% if session %}
@@ -38,4 +41,5 @@
     </script>
     <br>
     <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
+</body>
 {% endblock %}
