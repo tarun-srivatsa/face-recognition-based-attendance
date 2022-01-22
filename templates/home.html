@@ -2,33 +2,39 @@
 {% load static %}
 
 {% block body %}
-    <h3>Welcome</h3>
-    <a href="{% url 'registerscan' %}" class="btn btn-primary">Register New Student</a>
-    <a href="{% url 'createsession' %}" class="btn btn-primary">Create Session</a>
-    {% comment %} <a href="{% url 'activesessions' %}" class="btn btn-primary">Active Session</a> {% endcomment %}
+<title>FACE-REG</title>
+</head>
+<body>
+    <div class="container">
+        <h3>Welcome</h3>
+        <a href="{% url 'registerscan' %}" class="btn btn-primary">Register New Student</a>
+        <a href="{% url 'createsession' %}" class="btn btn-primary">Create Session</a>
+        {% comment %} <a href="{% url 'activesessions' %}" class="btn btn-primary">Active Session</a> {% endcomment %}
 
-    <br><br><br>
-    <h5>Active Sessions</h5>
-    <form method="post" class="form-group">
-        {% csrf_token %}
-        <select name="session" class="select form-control">
-            {% for s in sessions %}
-                <option value="{{ s.id }}">{{s.classdetails.course_code}}, {{ s }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <button type="submit" class="btn btn-success">Show Session</button>
-    </form>
-
-    {% comment %} <h5>Classes</h5>
-    <form method="post" class="form-group">
-        {% csrf_token %}
-        <select name="class" class="select form-control">
-            {% for c in classes %}
-                <option value=""></option>
-            {% endfor %}
-        </select>
-        <br>
-        <button type="submit" class="btn btn-success">Show Attendance details</button>
-    </form> {% endcomment %}
+        <br><br><br>
+        <h5>Active Sessions</h5>
+        <form method="post" class="form-group">
+            {% csrf_token %}
+            <select name="active" class="select form-control">
+                {% for s in open_sessions %}
+                    <option value="{{ s.id }}">{{s.classdetails.course_code}}, {{ s }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-success">Show Session</button>
+        </form>
+        <br><br><br>
+        <h5>Closed Sessions</h5>
+        <form method="post" class="form-group">
+            {% csrf_token %}
+            <select name="closed" class="select form-control">
+                {% for s in closed_sessions %}
+                    <option value="{{ s.id }}">{{s.classdetails.course_code}}, {{ s }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-success">Show Session</button>
+        </form>
+    </div>
+</body>
 {% endblock %}

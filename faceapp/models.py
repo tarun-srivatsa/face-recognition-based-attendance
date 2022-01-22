@@ -37,13 +37,13 @@ class Class(models.Model):
         unique_together=(('section','course_code'),)
 
     def __str__(self):
-        return f"{self.faculty}-{self.course_code}"
+        return f"{self.course_code} - {self.faculty}"
 
 class CurrentSession(models.Model):
     classdetails=models.ForeignKey(Class,on_delete=models.CASCADE)
     date=models.DateField(default=date.today)
     countage=models.PositiveSmallIntegerField(default=1)
-    # is_active=models.BooleanField(default=False,null=True)
+    is_active=models.BooleanField(default=True)
 
     class Meta:
         unique_together=(('classdetails','date'),)
@@ -54,12 +54,10 @@ class CurrentSession(models.Model):
 class Present(models.Model):
     session=models.ForeignKey(CurrentSession,on_delete=models.CASCADE)
     student=models.ForeignKey(Student,on_delete=models.CASCADE)
-    # usn=models.CharField()
-    timestamp=models.DateTimeField(auto_now_add=True,null=True)
+    timestamp=models.TimeField(auto_now_add=True)
 
     class Meta:
         unique_together=(('session','student'),)
-        # unique_together=(('session','usn'),)
 
     def __str__(self):
         return f"{self.session.id}-{self.student.usn}"

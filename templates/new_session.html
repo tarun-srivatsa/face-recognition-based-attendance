@@ -3,6 +3,9 @@
 {% load crispy_forms_filters %}
 
 {% block body %}
+<title>Create New Session</title>
+</head>
+<body>
     <h2>{{ date }}</h2>
     <h3>Create New Session</h3>
     <form method="post" class="form-group">
@@ -11,4 +14,5 @@
         <br>
         <button type="submit" class="btn btn-primary">Start Scanning for Session</button>
     </form>
+</body>
 {% endblock %}
