@@ -2,7 +2,7 @@
 {% load crispy_forms_filters %}
 
 {% block body %}
-<title>Active Session</title>
+<title>{{ session.classdetails.course_code }} Session</title>
 </head>
 <body>
     <div class="container">
@@ -11,7 +11,8 @@
         <br>
         <a href={% url 'attendancescan' %} class="btn btn-success">Scan Students</a>
         <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
-        <a href="{% url 'home' %}?close={{session.id}}" class="btn btn-danger">Close Session</a>
+        <a onclick="promptFunction()" class="btn btn-danger">Close Session</a>
+        <input id="link" value="{% url 'home' %}?close={{session.id}}" hidden></input>
         <br><br>
         <h3>Session Status</h3>
         <table class="table table-bordered table-hover" style="font-size:16px; text-align:center;">
@@ -41,5 +42,14 @@
             {% endfor %}
         </table>
     </div>
+
+    <script>
+        const link=document.getElementById('link');
+        function promptFunction(){
+            if (confirm("Are you sure?")){
+                location.replace(link.value);
+            }
+        }
+    </script>
 </body>
 {% endblock %}
