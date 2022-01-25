@@ -1,30 +1,43 @@
 from django.urls import reverse
 from django.http.response import HttpResponse
 from django.http import HttpResponseRedirect
-from urllib.request import urlopen
 from django.shortcuts import render
 import json
 import cv2
 import numpy as np
 import os
-import face_recognition
-from datetime import datetime,date
-from .models import CurrentSession, Present, Section, Student
+from datetime import date
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.views.generic import FormView
+from .models import Class, CurrentSession, Present, Section, Student
 from .forms import NewSessionForm, StudentForm
+from .utilities import face_scan,face_recognise
 
-norm = np.zeros((500,500))
+class LoginView(FormView):
+    form_class = AuthenticationForm
+    template_name = 'login.html'
 
-def fetch_encodings(section):
-    if not section:
-        studs=Student.objects.all()
-    else:
-        studs=Student.objects.filter(section=section)
-    usns=list(studs.order_by('usn').values_list('usn',flat=True))
-    json_encs=list(studs.order_by('usn').values_list('json_encoding',flat=True))
-    encs=[np.array(json.loads(x)) for x in json_encs]
-    return usns,encs
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+
+        if user is not None and user.is_active:
+            login(self.request, user)
+            return HttpResponseRedirect(reverse("home"))
+        else:
+            return self.form_invalid(form)
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('login'))
+    # return render(request, "login.html", {'message': 'Logged out Successfully!'})
 
 def homeview(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
     if request.GET.get('close',''):
         session=CurrentSession.objects.get(id=request.GET.get('close',''))
         session.is_active=False
@@ -35,12 +48,13 @@ def homeview(request):
         request.session['session_id']=request.POST.get('active','')
         return HttpResponseRedirect(reverse('activesession'))
 
-    if request.POST.get('closed',''):
-        pass
+    if request.POST.get('class',''):
+        request.session['class_id']=request.POST.get('class','')
+        return HttpResponseRedirect(reverse('showclass'))
 
-    open_sessions=CurrentSession.objects.filter(is_active=True)
-    closed_sessions=CurrentSession.objects.filter(is_active=False)
-    return render(request,'home.html',{'open_sessions':open_sessions,'closed_sessions':closed_sessions})
+    open_sessions=CurrentSession.objects.filter(is_active=True).order_by('-id')
+    classes=Class.objects.all().order_by('course_code')
+    return render(request,'home.html',{'open_sessions':open_sessions,'classes':classes})
 
 def register_scan(request):
     if request.method=='POST':
@@ -87,9 +101,9 @@ def create_session(request):
             countage=form.cleaned_data.get('attendance_countage')
             sesobj=CurrentSession(classdetails=class_details,countage=countage)
             sesobj.save()
-            session_id=sesobj.pk
-            request.session['session_id']=session_id
-            return HttpResponseRedirect(reverse('attendancescan'))
+            # session_id=sesobj.pk
+            # request.session['session_id']=session_id
+            return HttpResponseRedirect(reverse('home'))
     else:
         form=NewSessionForm()
     return render(request,'new_session.html',{'form':form,'date':date.today})
@@ -119,7 +133,7 @@ def attendance_assist(request,not_this):
             if not_this:
                 context['not_this_done']=True
                 if usn==not_this:
-                    context['not_this_done']='This is you as per the database'
+                    context['not_this_done']=f'This is {usn} as per the database, if not, please contact the Admin to get the details changed'
             if not usn:
                 context['message']='Unknown Face. Please Scan Again'
                 return render(request,'facescan.html',context)
@@ -133,50 +147,6 @@ def attendance_assist(request,not_this):
             return render(request,'facescan.html',context)
 
     return render(request,'facescan.html',context)
-
-def face_recognise(enc,section):
-    usnlist,enclist=fetch_encodings(section)
-    if not enclist:
-        return None
-    facedistances=face_recognition.face_distance(enclist,enc)
-    matchindex=np.argmin(facedistances)
-    if not section:
-        if facedistances[matchindex]<0.35:
-            return usnlist[matchindex]
-        else:
-            return None
-
-    if facedistances[matchindex]>0.5:
-        return None
-
-    print(usnlist,facedistances)
-    return usnlist[matchindex]
-
-def putbox(name,path):
-    t=cv2.imread(path)
-    t=cv2.normalize(t,norm,0,255,cv2.NORM_MINMAX)
-    fls=face_recognition.face_locations(t)
-    if not fls or len(fls)!=1:
-        return False,path,None
-
-    faceloc=fls[0]
-    encloc=face_recognition.face_encodings(t,fls,num_jitters=2)[0]
-    y1,x2,y2,x1=faceloc
-    cv2.rectangle(t,(x1,y1),(x2,y2),(20,255,0),1)
-    boxpath='tempfaces/'+name+'-boxed.jpg'
-    cv2.imwrite('static/'+boxpath,t)
-    return True,boxpath,encloc
-
-def face_scan(request):
-    datauri = request.POST.get('src','')
-    name=datetime.now().strftime('%H-%M')
-    path='media/temps/'+name+'.jpg'
-    image=open(path,'wb')
-    image.write(urlopen(datauri).read())
-    image.close()
-    r1,r2,r3=putbox(name,path)
-    os.remove(path)
-    return r1,r2,r3
 
 def already_present(usn,session):
     stud=Student.objects.get(usn=usn)
@@ -203,3 +173,35 @@ def get_absent(session,presents):
             a_list.append(s)
 
     return a_list
+
+def show_class(request):
+    this_class=Class.objects.get(id=request.session['class_id'])
+    stud_list=Student.objects.filter(section=this_class.section).order_by('usn')
+    session_count,stud_counts=zipcounts(this_class,stud_list)
+    context={'class':this_class,'students':stud_list,
+        'total':session_count,'stud_counts':stud_counts}
+    return render(request,'show_class.html',context)
+
+def zipcounts(class0,stud_list):
+    session_list=CurrentSession.objects.filter(classdetails=class0,is_active=0)
+    session_count=session_list.count()
+    present_counts={}
+    for stud in stud_list:
+        present_counts[stud.usn]=0
+
+    for session in session_list:
+        presents=Present.objects.filter(session=session)
+        for p in presents:
+            present_counts[p.student.usn]+=1
+
+    counts=[]
+    percs=[]
+    for stud in stud_list:
+        counts.append(present_counts[stud.usn])
+        if session_count > 0:
+            percs.append(present_counts[stud.usn]*100/session_count)
+        else:
+            percs.append(0)
+
+    return session_list.count,zip(stud_list,counts,percs)
+ 

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_filters %}
+
+{% block body %}
+<title>{{ class.course_code }}</title>
+</head>
+<body>
+    <div class="container">
+        <h4>Section: {{ class.section }}</h4>
+        <h4>Course: {{ class }}</h4>
+        <h4>Classes held: {{ total }}</h4>
+        <br>
+        <a href="{% url 'home' %}" class="btn btn-primary">Home</a>
+        <br><br>
+        <h3>Class Status</h3>
+        <table class="table table-bordered table-hover" style="font-size:16px; text-align:center;">
+            <tr class="table-primary" style="text-align:center; font-weight:bolder;">
+                <td>USN</td>
+                <td>Student Name</td>
+                <td>Attended</td>
+                <td>Attendance %</td>
+            </tr>
+            {% for stud,count,perc in stud_counts %}
+            <tr class="">
+                <td>{{ stud.usn }}</td>
+                <td>{{ stud.name }}</td>
+                {% if total == 0 %}
+                    <td>-</td>
+                    <td>-</td>
+                {% else %}
+                    <td>{{ count }}</td>
+                    <td>{{ perc }}</td>
+                {% endif %}
+                
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+{% endblock %}

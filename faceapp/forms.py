@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import ModelForm, NumberInput, TextInput
+from django.forms import ModelForm, NumberInput, TextInput, ValidationError
 from django.core.validators import RegexValidator
 from .models import Class, CurrentSession, Section, Student
 
@@ -37,3 +37,9 @@ class NewSessionForm(ModelForm):
     class Meta():
         model=CurrentSession
         fields=['class_details','attendance_countage']
+
+    def clean_class_details(self):
+        class_details=self.cleaned_data.get('class_details')
+        if CurrentSession.objects.filter(classdetails=class_details,is_active=True).exists():
+            raise ValidationError('Please close the existing active session to create a new session for this course')
+        return class_details
