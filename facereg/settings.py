@@ -28,10 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
-    '4c51-2401-4900-6194-534c-2b6d-f06b-ac32-ee3d.ngrok.io'
+    'bd52-2401-4900-61a4-528a-6b39-8eb8-fad7-a884.ngrok.io'
 ]
 CSRF_TRUSTED_ORIGINS = [
-    'https://4c51-2401-4900-6194-534c-2b6d-f06b-ac32-ee3d.ngrok.io'
+    'https://a83a-223-231-164-74.ngrok.io'
 ]
 
 

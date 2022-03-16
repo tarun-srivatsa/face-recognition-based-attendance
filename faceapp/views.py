@@ -32,7 +32,6 @@ class LoginView(FormView):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse('login'))
-    # return render(request, "login.html", {'message': 'Logged out Successfully!'})
 
 def homeview(request):
     if not request.user.is_authenticated:
