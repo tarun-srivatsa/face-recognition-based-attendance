@@ -6,6 +6,7 @@
 <title>{% if regform %}Registration{% else %}Verify Attendance{% endif %}</title>
 </head>
 <body>
+    {% include 'navbar.html' %}
     {% if regform %}<h2>Student Registration</h2>{% endif %}
     {% if message %}
         <h3>{{ message }}</h3>
