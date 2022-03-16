@@ -4,7 +4,7 @@
 {% block body %}
 <title>FACE SCANNING..</title>
 </head>
-<body>
+<body class="container">
     {% include 'navbar.html' %}
     <script src={% static 'assets/js/capture.js' %}></script>
     <div class="container-fluid">
@@ -26,6 +26,7 @@
                 </div>
                 <button id="capt" class="btn btn-secondary btn-sm" onclick="enablesubmit()">Take Photo</button>
                 <button id="sub" type="submit" class="btn btn-success btn-sm">POST</button>
+                <br><br>
                 <div class="img pull-center">
                     <img id ="photo" name="photo" alt="The screen capture will appear in this box.">
                 </div>
