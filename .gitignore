@@ -1,6 +1,9 @@
 /db.sqlite3
 /venv/
 /dlib/
+/mine/
+/screenshots/
 *.pyc
 *.jpg
+*.png
 *.json
