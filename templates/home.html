@@ -2,38 +2,37 @@
 {% load static %}
 
 {% block body %}
-<title>FACE-REG</title>
-</head>
 <body>
-    {% include 'navbar.html' %}
     <div class="container">
-        <h3>Welcome</h3>
+        <h3>Welcome!</h3>
         <a href="{% url 'registerscan' %}" class="btn btn-primary">Register New Student</a>
         <a href="{% url 'createsession' %}" class="btn btn-primary">Create Session</a>
 
         <br><br><br>
-        <h5>Active Sessions</h5>
-        <form method="post" class="form-group">
-            {% csrf_token %}
-            <select name="active" class="select form-control">
-                {% for s in open_sessions %}
-                    <option value="{{ s.id }}">{{s.classdetails.course_code}}, {{ s }}</option>
-                {% endfor %}
-            </select>
-            <br>
-            <button type="submit" class="btn btn-success">Show Session</button>
-        </form>
-        <br><br><br>
-        <h5>Classes</h5>
-        <form method="post" class="form-group">
-            {% csrf_token %}
-            <select name="class" class="select form-control">
-                {% for c in classes %}
+        <div class="container" style="width:500px;">
+            <h5>Active Sessions</h5>
+            <form method="post" class="form-group">
+                {% csrf_token %}
+                <select name="active" class="select form-control">
+                    {% for s in open_sessions %}
+                        <option value="{{ s.id }}">{{s.classdetails.course_code}}, {{ s }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <button type="submit" class="btn btn-success">Show Session</button>
+            </form>
+            <br><br><br>
+            <h5>Classes</h5>
+            <form method="post" class="form-group">
+                {% csrf_token %}
+                <select name="class" class="select form-control">
+                    {% for c in classes %}
                     <option value="{{ c.id }}">{{ c }}</option>
-                {% endfor %}
-            </select>
-            <br>
-            <button type="submit" class="btn btn-success">Show Class</button>
+                    {% endfor %}
+                </select>
+                <br>
+                <button type="submit" class="btn btn-success">Show Class</button>
+            </div>
         </form>
     </div>
 </body>

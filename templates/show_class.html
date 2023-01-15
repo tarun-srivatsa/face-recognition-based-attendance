@@ -6,8 +6,7 @@
 <title>{{ class.course_code }}</title>
 </head>
 <body>
-    {% include 'navbar.html' %}
-    <div class="container">
+    <div>
         <h4>Section: {{ class.section }}</h4>
         <h4>Course: {{ class }}</h4>
         <h4>Classes held: {{ total }}</h4>
@@ -23,7 +22,7 @@
                 <td>Attendance %</td>
             </tr>
             {% for stud,count,perc in stud_counts %}
-            <tr class="">
+            <tr>
                 <td>{{ stud.usn }}</td>
                 <td>{{ stud.name }}</td>
                 {% if total == 0 %}

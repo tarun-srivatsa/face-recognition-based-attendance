@@ -3,10 +3,7 @@
 {% load crispy_forms_filters %}
 
 {% block body %}
-<title>{% if regform %}Registration{% else %}Verify Attendance{% endif %}</title>
-</head>
-<body class="container">
-    {% include 'navbar.html' %}
+<body>
     {% if regform %}<h2>Student Registration</h2>{% endif %}
     {% if message %}
         <h3>{{ message }}</h3>
@@ -34,12 +31,12 @@
         </h5>
         <h5>{% if not_this_done %}{{ not_this_done }}{% endif %}</h5>
 
-        <button class="btn btn-outline-primary" {% if already_present %}disabled{% endif %}> 
-            <a href="{% url 'attendancescan' %}?yesstudent={{student.usn}}" class="btn btn-sm">YES</a>
+        <button class="btn btn-outline-primary" {% if already_present %}disabled{% endif %}>
+            <a href="{% url 'attendancescan' %}?yesstudent={{student.usn}}">YES</a>
         </button>
 
-        <button class="btn btn-outline-danger" {% if not_this_done %}disabled{% endif %}> 
-            <a href="{% url 'attendancescan' %}?nostudent={{student.usn}}" class="btn btn-sm">NO</a>
+        <button class="btn btn-outline-danger">
+            <a href="{% url 'attendancescan' %}?nostudent={{student.usn}}">NO</a>
         </button>
         
         <li>Pressing Yes will mark your attendance</li>

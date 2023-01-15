@@ -5,7 +5,6 @@
 <title>FACE SCANNING..</title>
 </head>
 <body class="container">
-    {% include 'navbar.html' %}
     <script src={% static 'assets/js/capture.js' %}></script>
     <div class="container-fluid">
         {% if session %}
@@ -24,8 +23,8 @@
                     <video id="video" autoplay></video>
                     <canvas id="canvas" hidden></canvas>
                 </div>
-                <button id="capt" class="btn btn-secondary btn-sm" onclick="enablesubmit()">Take Photo</button>
-                <button id="sub" type="submit" class="btn btn-success btn-sm">POST</button>
+                <button id="capt" class="btn btn-danger" onclick="enablesubmit()">Take Photo</button>
+                <button id="sub" type="submit" class="btn btn-success">POST</button>
                 <br><br>
                 <div class="img pull-center">
                     <img id ="photo" name="photo" alt="The screen capture will appear in this box.">
